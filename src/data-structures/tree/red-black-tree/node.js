@@ -2,11 +2,11 @@ export const RED = 0;
 export const BLACK = 1;
 
 export default class Node {
-  constructor(data, colour, left = null, right = null, parent = null) {
+  constructor(data) {
     this.data = data;
-    this.colour = colour;
-    this.left = left;
-    this.right = right;
-    this.parent = parent;
+    this.colour = RED;
+    this.left = null;
+    this.right = null;
+    this.parent = null;
   }
 }
