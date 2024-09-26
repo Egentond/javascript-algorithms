@@ -5,15 +5,55 @@ export default class RedBlackTree {
   }
 
   leftRotate(node) {
-    
+    let temp = node.right;
+    node.right = temp.left;
+
+    if(temp.left !== null) {
+      temp.left.parent = node;
+    }
+    temp.parent = node.parent;
+
+    if(node.parent === null) {
+      this.root = temp
+    } 
+    else if(node === node.parent.left) {
+      node.parent.left = temp;
+    }
+    else {
+      node.parent.right = temp;
+    }
+
+    temp.left = node;
+    node.parent = temp;
   }
 
   rightRotate(node) {
-    
+    let temp = node.left;
+    node.left = temp.right;
+
+    if(temp.right !== null) {
+      temp.right.parent = node;
+    }
+
+    temp.parent = node.parent;
+
+    if(node.parent === null) {
+      this.root = temp;
+    }
+    else if(node === node.parent.right) {
+      node.parent.right = temp;
+    }
+    else {
+      node.parent.left = temp;
+    }
+
+    temp.right = node;
+    node.parent = temp;
   }
 
   fixNodeInsertion(node) {
-    //TODO
+    
+
   }
 
 
@@ -45,15 +85,22 @@ export default class RedBlackTree {
 
       this.fixNodeInsertion(newNode);
     }
-
-
   }
 
-  search(root) {
-    // TODO
+  search(node, data) {
+    if(node === null || data === node.data) {
+      return node;
+    }
+
+    if(data < node.data) {
+      return this.search(node.left, data);
+    }
+    else {
+      return this.search(node.right, data);
+    }
   }
   
   delete(root) {
-   // TODO 
+   
   }
 }
