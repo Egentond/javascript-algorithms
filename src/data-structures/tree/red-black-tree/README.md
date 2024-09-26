@@ -9,3 +9,7 @@ This repository contains a complete implementation of a Red-Black Tree in JavaSc
 - **Search**: Efficiently find nodes in the tree.
 - **Traversal**: Supports in-order traversal to view the sorted order of elements.
 
+
+
+Link to my video presentation on YouTube: 
+https://youtu.be/XT1hMn9LB7E
