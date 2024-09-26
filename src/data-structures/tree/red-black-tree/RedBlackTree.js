@@ -157,7 +157,153 @@ export default class RedBlackTree {
     }
   }
   
-  delete(root) {
-   
+  deleteNode(data) {
+    let node = this.search(this.root, data);
+    if (node === null) return; // Node not found, nothing to delete
+
+    let y = node;
+    let yOriginalColour = y.colour;
+    let x; // The node that will replace the deleted node
+
+    // Case 1: Node has no left child, just promote right child (or null)
+    if (node.left === null) {
+        x = node.right;
+        this.transplant(node, node.right);
+    } 
+    // Case 2: Node has no right child, just promote left child
+    else if (node.right === null) {
+        x = node.left;
+        this.transplant(node, node.left);
+    } 
+    // Case 3: Node has two children, find successor
+    else {
+        y = this.minimum(node.right);  // find the successor by finding the smallest node in the right subtree
+        yOriginalColour = y.colour;
+        x = y.right;
+
+        if (y.parent === node) {
+            if (x !== null) x.parent = y;
+        } else {
+            this.transplant(y, y.right);
+            y.right = node.right;
+            y.right.parent = y;
+        }
+
+        this.transplant(node, y);
+        y.left = node.left;
+        y.left.parent = y;
+        y.colour = node.colour;
+    }
+
+    // We need to call fixNodeDeletion to restore the properties of the red black tree if the origional colour of the deleted node was black
+    if (yOriginalColour === BLACK) {
+        this.fixNodeDeletion(x);
+    }
   }
+
+  // Find the minimum node in the tree
+  minimum(node) {
+    while (node.left !== null) {
+        node = node.left;
+    }
+    return node;
+  }
+
+  // Find the maximum node in the tree
+  maximum(node) {
+    while(node.right !== null) {
+      node = node.right;
+    }
+    return node;
+  }
+
+  // This promotes the successor of the node that is being deleted
+  // it fixes pointers around the deleted node
+  // if the node being deleted has a parent node, set the parent to point to the successor and vice versa
+  transplant(u, v) {
+    if (u.parent === null) {  // If the node being deleted has no parent, set the successor replacing the deleted node to be the root
+        this.root = v;
+    } else if (u === u.parent.left) { // If deleted node has a parent, make the parent point to the new child and vice versa
+        u.parent.left = v;
+    } else {
+        u.parent.right = v;           
+    }
+
+    if (v !== null) {      // if the successor is not null, then make the parent property point to the nodes new parent, which was the deleted nodes parent
+        v.parent = u.parent;
+    }
+  } 
+
+  // This function will restore the properties of the RB Tree after a node that was deleted had an origional colour that was black
+  // If the origional colour of the node that was deleted was red, the properties of the tree are maintained and no need to call this function
+  fixNodeDeletion(x) {
+    while (x !== this.root && (x === null || x.colour === BLACK)) {
+        if (x === x.parent.left) {
+            let w = x.parent.right;
+
+            // Case 1: Sibling is red
+            if (w.colour === RED) {
+                w.colour = BLACK;
+                x.parent.colour = RED;
+                this.leftRotate(x.parent);
+                w = x.parent.right;
+            }
+
+            // Case 2: Sibling's children are both black
+            if ((w.left === null || w.left.colour === BLACK) && 
+                (w.right === null || w.right.colour === BLACK)) {
+                w.colour = RED;
+                x = x.parent;
+            } else {
+                // Case 3: Sibling's right child is black, left child is red
+                if (w.right === null || w.right.colour === BLACK) {
+                    if (w.left !== null) w.left.colour = BLACK;
+                    w.colour = RED;
+                    this.rightRotate(w);
+                    w = x.parent.right;
+                }
+
+                // Case 4: Sibling's right child is red
+                if (w.right !== null) w.right.colour = BLACK;
+                w.colour = x.parent.colour;
+                x.parent.colour = BLACK;
+                if (w.right !== null) w.right.colour = BLACK;
+                this.leftRotate(x.parent);
+                x = this.root;
+            }
+        } else {
+            // Symmetric cases for when x is the right child
+            let w = x.parent.left;
+
+            if (w.colour === RED) {
+                w.colour = BLACK;
+                x.parent.colour = RED;
+                this.rightRotate(x.parent);
+                w = x.parent.left;
+            }
+
+            if ((w.right === null || w.right.colour === BLACK) && 
+                (w.left === null || w.left.colour === BLACK)) {
+                w.colour = RED;
+                x = x.parent;
+            } else {
+                if (w.left === null || w.left.colour === BLACK) {
+                    if (w.right !== null) w.right.colour = BLACK;
+                    w.colour = RED;
+                    this.leftRotate(w);
+                    w = x.parent.left;
+                }
+
+                if (w.left !== null) w.left.colour = BLACK;
+                w.colour = x.parent.colour;
+                x.parent.colour = BLACK;
+                if (w.left !== null) w.left.colour = BLACK;
+                this.rightRotate(x.parent);
+                x = this.root;
+            }
+        }
+    }
+    if (x !== null) x.colour = BLACK;
+  }
+
 }
